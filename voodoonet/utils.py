@@ -113,9 +113,13 @@ def numpy_arrays2tensor(data: list[np.ndarray]) -> Tensor:
 
 
 def keep_valid_samples(
-    features: np.ndarray, target_class: np.ndarray, detect_status: np.ndarray
+    features: np.ndarray, target_class: np.ndarray, detect_status: np.ndarray, target = 'droplets' 
 ) -> tuple:
-    valid = load_training_mask(target_class, detect_status)
+    
+    if target=='droplets':
+        valid = load_training_mask(target_class, detect_status)
+    elif target=='insects':
+        valid = load_training_mask_insects(target_class, detect_status)
     idx_valid_samples = np.where(valid)
     if len(idx_valid_samples) < 1:
         return None, None
@@ -142,12 +146,23 @@ def keep_valid_samples(
 
 def load_training_mask(classes: np.ndarray, status: np.ndarray) -> np.ndarray:
     valid_samples = np.full(status.shape, False)
-    valid_samples[status == 3] = True  # add good radar radar & lidar
+    valid_samples[status == 3] = True  # add good radar & lidar
     valid_samples[classes == 1] = True  # add cloud droplets only class
     valid_samples[classes == 3] = True  # add cloud droplets + drizzle/rain
     valid_samples[classes == 5] = True  # add mixed-phase
     valid_samples[classes == 6] = True  # add melting layer
     valid_samples[classes == 7] = True  # add melting layer + SCL
+    valid_samples[status == 1] = False  # remove lidar only
+    return valid_samples
+
+def load_training_mask_insects(classes: np.ndarray, status: np.ndarray) -> np.ndarray:
+    valid_samples = np.full(status.shape, False)
+    valid_samples[status == 3] = True  # add good radar & lidar
+    valid_samples[status == 5] = True  # add good radar only
+    valid_samples[classes == 1] = True  # add cloud droplets only class
+    valid_samples[classes == 3] = True  # add cloud droplets + drizzle/rain
+    valid_samples[classes == 9] = True  # add insects
+    valid_samples[classes == 10] = True  # add aerosol and insects
     valid_samples[status == 1] = False  # remove lidar only
     return valid_samples
 
