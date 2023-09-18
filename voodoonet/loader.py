@@ -335,7 +335,7 @@ class VoodooDroplet:
         classes = target_classification[time_ind, :]
         status = detection_status[time_ind, :]
         ind = np.where(non_zero_mask)
-        features, labels = utils.keep_valid_samples(features, classes[ind], status[ind])
+        features, labels = utils.keep_valid_samples(features, classes[ind], status[ind], target=self.options.target)
         try:
             if len(labels) == 0:
                 raise ValueError
