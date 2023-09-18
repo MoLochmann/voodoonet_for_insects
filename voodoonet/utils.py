@@ -28,6 +28,7 @@ class VoodooOptions:
     n_dbins: int = 256
     z_limits: tuple[float, float] = (-50, 20)
     device: str = "cpu"
+    target: str = "droplets"
 
     def dict(self) -> dict:
         return {k: str(v) for k, v in asdict(self).items()}
@@ -44,6 +45,7 @@ class WandbConfig:
 class VoodooTrainingOptions:
     garbage: Ints = (0, 3, 7, 8, 9, 10)
     groups: IntTuplesVariable = ((1, 5), (2, 4, 6))
+    target: str = "droplets"
     dupe_droplets: int = 1
     learning_rate: float = 1.0e-3
     learning_rate_decay: float = 1.0e-1
