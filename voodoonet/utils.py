@@ -42,12 +42,8 @@ class WandbConfig:
 
 @dataclass
 class VoodooTrainingOptions:
-    ###droplet configuration
-    #garbage: Ints = (0, 3, 7, 8, 9, 10)
-    #groups: IntTuplesVariable = ((1, 5), (2, 4, 6))
-    ###insect configuration
-    garbage: Ints = (0, 4, 5, 6, 7, 8)
-    groups: IntTuplesVariable = ((9, 10), (1, 2, 3, ))
+    garbage: Ints = (0, 3, 7, 8, 9, 10)
+    groups: IntTuplesVariable = ((1, 5), (2, 4, 6))
     dupe_droplets: int = 1
     learning_rate: float = 1.0e-3
     learning_rate_decay: float = 1.0e-1
