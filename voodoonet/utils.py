@@ -180,11 +180,25 @@ def load_training_mask_insects(classes: np.ndarray, status: np.ndarray) -> np.nd
     valid_samples = np.full(status.shape, False)
     valid_samples[status == 3] = True  # add good radar & lidar
     valid_samples[status == 5] = True  # add good radar only
+
     valid_samples[classes == 1] = True  # add cloud droplets only class
-    valid_samples[classes == 3] = True  # add cloud droplets + drizzle/rain
-    valid_samples[classes == 9] = True  # add insects
-    valid_samples[classes == 10] = True  # add aerosol and insects
+    valid_samples[classes == 2] = True  # add drizzle or rain class
+    valid_samples[classes == 3] = True  # add cloud droplets + drizzle/rain class
+    valid_samples[classes == 4] = True  # add ice particles class
+    valid_samples[classes == 5] = True  # add mixed-phase class
+    valid_samples[classes == 6] = True  # add melting layer class
+    valid_samples[classes == 7] = True  # add melting layer + SCL class
+
+    valid_samples[classes == 9] = True  # add insect class
+    valid_samples[classes == 10] = True  # add aerosol and insects class
+
     valid_samples[status == 1] = False  # remove lidar only
+
+    # filter out insect (and aerosol+insect) misclassifications at drizzle or cloud edges
+    filtered_classes=close_to_drizzle_filter(classes, class_condition=10, border_class=2, square_size=4)
+    filtered_classes=close_to_drizzle_filter(classes, class_condition=9, border_class=2, square_size=4)
+    valid_samples[filtered_classes == 999] = False
+
     return valid_samples
 
 
