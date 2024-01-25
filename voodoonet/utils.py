@@ -113,6 +113,22 @@ def numpy_arrays2tensor(data: list[np.ndarray]) -> Tensor:
     torch_tensors = [from_numpy(array) for array in data]
     return concat(torch_tensors, dim=0)
 
+def close_to_drizzle_filter(data, class_condition, border_class, square_size):
+    # Remove areas where insects pixels appear directly next to drizzle pixels, 
+    # to remove typical insect misclassifications at drizzle edges
+    # Find pixels with the specified condition
+    condition_pixels = np.where(data == class_condition)
+    # Loop through the condition pixels
+    for i in range(len(condition_pixels[0])):
+        row, col = condition_pixels[0][i], condition_pixels[1][i]
+
+        # Check if the border condition is met
+        if any(data[row - 1:row + 2, col - 1:col + 2].ravel() == border_class):
+            # Remove the square around the condition pixel
+            data[row - square_size // 2:row + square_size // 2 + 1,
+                col - square_size // 2:col + square_size // 2 + 1] = 999
+    return data
+
 
 def keep_valid_samples(
     features: np.ndarray, target_class: np.ndarray, detect_status: np.ndarray, target = 'droplets' 
