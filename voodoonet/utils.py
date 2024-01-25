@@ -130,14 +130,18 @@ def close_to_drizzle_filter(data, class_condition, border_class, square_size):
     return data
 
 
+
 def keep_valid_samples(
-    features: np.ndarray, target_class: np.ndarray, detect_status: np.ndarray, target = 'droplets' 
+    features: np.ndarray, target_class: np.ndarray, detect_status: np.ndarray, non_zero: np.ndarray, target = 'droplets'
 ) -> tuple:
-    
     if target=='droplets':
         valid = load_training_mask(target_class, detect_status)
     elif target=='insects':
         valid = load_training_mask_insects(target_class, detect_status)
+    # remove pixels without spectral information
+    valid=valid[non_zero]
+    target_class=target_class[non_zero]
+    detect_status=detect_status[non_zero]
     idx_valid_samples = np.where(valid)
     if len(idx_valid_samples) < 1:
         return None, None
@@ -147,11 +151,10 @@ def keep_valid_samples(
 
     # remove samples with low signal to noise
     mean = np.mean(valid_features, axis=(1, 2))
-    idx_invalid_samples = np.argwhere(mean < 0.01)[:, 0]
+    idx_invalid_samples = np.argwhere(mean < 0.001)[:, 0]
     if len(idx_invalid_samples) > 0:
         valid_features = np.delete(valid_features, idx_invalid_samples, axis=0)
         valid_labels = np.delete(valid_labels, idx_invalid_samples, axis=0)
-
     mean = np.mean(valid_features, axis=(1, 2))
     # remove samples to high values
     idx_invalid_samples = np.argwhere(mean > 0.99)[:, 0]
